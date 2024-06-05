@@ -14,8 +14,14 @@ function sendEmail() {
   
   // 02. SOP for Recording EAC Meetings via MS Teams (discuss with Shweta ma'am)
   // 04. PCODE list (remind Sakhsi Singhal for remaining PCODEs)
-
-  if(currentDate == 8){
+  
+  if(currentDate == 1 && (currentMonth == 2 || currentMonth == 5 || currentMonth == 8 || currentMonth == 11)){
+    markOutOfOffice();
+  }
+  else if(currentDate == 5 && (currentMonth == 2 || currentMonth == 5 || currentMonth == 8 || currentMonth == 11)){
+    pgApprovedVendorList();
+  }
+  else if(currentDate == 8){
     clientVisitChecklistZohoForm();
   }
   else if(currentDate == 10){
@@ -52,6 +58,101 @@ function sendEmail() {
   else if(currentDate == 28){
     maintainingHygieneInWorkplace();
   }
+}
+
+function markOutOfOffice () {
+  const imgBlob2 = DriveApp.getFilesByName("sop-to-mark-out-of-office-2.png").next().getBlob();
+  const imgBlob3 = DriveApp.getFilesByName("sop-to-mark-out-of-office-3.png").next().getBlob();
+  const imgBlob4 = DriveApp.getFilesByName("sop-to-mark-out-of-office-4.png").next().getBlob();
+  const imgBlob6 = DriveApp.getFilesByName("sop-to-mark-out-of-office-6.png").next().getBlob();
+  let inlineImages = {
+    'img2': imgBlob2,
+    'img3': imgBlob3,
+    'img4': imgBlob4,
+    'img6': imgBlob6
+  }
+  const name = "IT Administrator / PERFACT";
+  const recipient = "family@perfactgroup.in";
+  const cc = "topmanagement@perfactgroup.in"
+  const subject = `SOP: Marking "Out of Office" in Google Calendar`;
+  const body = `
+  <head>
+    <style>
+      @media screen and (min-width: 767px){
+        img {
+          width: 50%
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <p>Dear all,</p>
+    <p>Please find the SOP below to mark yourself "Out of Office" in Google Calendar. This will let you on set up a notification to inform colleagues about your unavailability during leaves, site visits or other commitments.</p>
+    <br>
+    <h1 style="font-weight:bold; text-align:center">SOP to mark “Out of Office” in Google Calendar</h1>
+    <br>
+    <h3><strong>Step1 -</strong> Open your web browser and go to Google Calendar [https://calendar.google.com/]</h3>
+    <br>
+    <h3><strong>Step2 -</strong> Click on the 'Create' event button or any time-block in the calendar.</h3>
+    <img src="cid:img2">
+    <br>
+    <h3><strong>Step3 -</strong> Select "Out of office" from the menu.</h3>
+    <img src="cid:img3">
+    <br>
+    <h3><strong>Step4 -</strong> Specify a start and end time or choose the 'All day' option to pick the start and end dates for your absence.</h3>
+    <img src="cid:img4">
+    <br>
+    <h3><strong>Step5 -</strong> Choose to automatically decline new and/or existing meetings.</h3>
+    <br>
+    <h3><strong>Step6 -</strong> You can even customize your "Out of Office" decline message.</h3>
+    <img src="cid:img6">
+    <br>
+    <h3><strong>Step7 -</strong> Save and enjoy your day out of the office.</h3>
+    <br>
+    <p>SOP link- https://docs.google.com/document/d/1HIFUKhFt2nERE7EPGisJ_FIJeN4ttn2bdilUFW0ieIU/edit?usp=sharing</p>
+    <br>
+    <p>--------------------------</p>
+    <p>Thanks & Regards</p>
+    <br>
+  </body>
+  `;
+  GmailApp.sendEmail(recipient, subject, body, {
+    cc: cc,
+    htmlBody: body,
+    inlineImages: inlineImages,
+    name: name
+  });
+}
+
+function pgApprovedVendorList () {
+  const recipient = "family@perfactgroup.in";
+  const subject = "Vendors for any Repair / Maintenance at Perfact Group";
+  const name = "IT Administrator / PERFACT";
+  const cc = "topmanagement@perfactgroup.in";
+  const body = `
+  <head></head>
+  <body>
+    <p>Dear all,</p>
+    <p>At Perfact Group we prefer Quality of the Service / Work our utmost priority & always try to provide the best quality of Service to our Customers.</p>
+    <p>We also expect the same from our vendors.</p>
+    <p>Keeping in mind the quality of work, timeliness and dependability, we have developed some core vendors for every work in our Company.</p>
+    <p>Please note that any repair/ maintenance work should be done only from the approved vendors as decided.</p>
+    <p>If the approved is not able to do the work by whatsoever reason, only Urban Company experts should be scheduled for the same.</p>
+    <p>No unapproved vendor should be called for any repair maintenance work without prior approval from Top Management.</p>
+    <p>Please find below the link mentioned of PG Approved Vendor list Google sheet and all are requested to please enter the Vendor details in the same: https://docs.google.com/spreadsheets/d/1wiPocloQtPVNuJWBAEbLX59jXUjCyvLb8Of_agPukeM/edit?usp=sharing</p>
+    <p>For any office repair/ maintenance work Admin Team will coordinate with the Vendor, all departments should raise a ticket to Freshdesk with CC to Team Admin for any issue.</p>
+    <p>For any Lab Specific work i.e. in which Lab Section's intervention is required, only then Lab section will coordinate with the vendor</p>
+    <br>
+    <p>--------------------------</p>
+    <p>Thanks & Regards</p>
+    <br>
+  </body>
+  `;
+  GmailApp.sendEmail(recipient, subject, body, {
+    htmlBody: body,
+    name: name,
+    cc: cc
+  });
 }
 
 function clientVisitChecklistZohoForm() {
@@ -327,6 +428,7 @@ function saveTeamsRecording () {
     name: name
   });
 }
+
 function chatAudioVideoCalls () {
   const recipient = "family@perfactgroup.in";
   const subject = "Enhance Collaboration: Get acquainted with Google Chat Audio & Video Calls";
@@ -494,7 +596,7 @@ function masterPPTnGuidelines() {
         <li><strong>NABET Accreditation Information: </strong> When needed, have readily available NABET accreditation letters and extensions for projects.</li>
         <li><strong>Project Chronology: </strong> Maintain a documented record within the master PPT outlining key project milestones, such as TOR application, grant, Public Hearing (PH), EIA submission, and Environmental Clearance (EC) letter.</li>
         <li><strong>Master PPT Links: </strong> Keep the link to the master PPT containing this information updated in the relevant chat space for each project.</li>
-        <li><strong>Key Milestone Dates: </strong> For future projects (TF05 02 and TF08 onward), document key milestone dates within the master PPT to facilitate faster response to client inquiries.</li>
+        <li><strong>Key Milestone Dates: </strong> For future projects, TF05 02 and 08 to document key milestone dates and also within the master PPT to facilitate faster response to client inquiries.</li>
       </ul>
       </li>
     </ul>
