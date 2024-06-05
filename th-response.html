@@ -14,13 +14,18 @@
   <body>
     <form id="myForm">
       <label for="comment">Add a comment (optional)</label><br>
-      <textarea id="comment" rows="10" cols="20"></textarea><br>
-      <input type="submit" value="Submit" onclick="submitForm()">
+      <textarea id="comment" rows="10" cols="30"></textarea><br>
+      <input type="submit" value="Accept" onclick="accepted()">
+      <input type="submit" value="Reject" onclick="rejected()">
     </form>
     <script>
-      function submitForm() {
+      function accepted() {
+        let a = window.location.search;
+        let b = new URLSearchParams(a);
+        let c = b.get("row");
+        let uid = parseInt(c);
         let comment = document.getElementById("comment").value;
-        google.script.run.thResponse(comment);
+        google.script.run.thResponse(uid, "Accepted", comment);
       }
     </script>
   </body>
