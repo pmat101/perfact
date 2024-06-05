@@ -1,8 +1,7 @@
 const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-let currentRow;
   
 function onFormSubmit(e) {
-  currentRow = sheet.getLastRow();
+  let currentRow = sheet.getLastRow();
   let formData = sheet.getRange(currentRow, 1, 1, sheet.getLastColumn()).getValues()[0];
   // let uniqueID = formData[0].toString();
   let th = formData[4];
@@ -13,6 +12,7 @@ function onFormSubmit(e) {
     <style>
       a {
         text-decoration: none;
+        font-size: 1.1em;
         padding: 0.5em 1em;
         border: 1px solid #888;
         border-radius: 1em;
@@ -25,10 +25,9 @@ function onFormSubmit(e) {
     <p>Item Name: ${formData[6]}</p>
     <p>Amount: ${formData[7]}</p>
     <p>Reason: ${formData[8]}</p>
-    <p>Do you approve this request?</p>
-    <a href="https://script.google.com/macros/s/AKfycbwDWgpWTt4_KqszbwfprKU5j7XYWXBOjKzpuXUSIfsBBldwLSCgqZIbTfeWK-SBLhgz/exec?action=accept">Accept</a>
+    <span>Do you approve this request?</span>
     &nbsp; &nbsp;
-    <a href="https://script.google.com/macros/s/AKfycbwDWgpWTt4_KqszbwfprKU5j7XYWXBOjKzpuXUSIfsBBldwLSCgqZIbTfeWK-SBLhgz/exec?action=reject">Reject</a>
+    <a href="https://script.google.com/macros/s/AKfycbxfsmI1wQcn79WR74FuKazJ6pHJZzq1_G0VrejpSbDlVDFJdiV8HWUwiwXZxGv5Vg3v/exec?row=${currentRow}">Respond</a>
     <br>
     <p>Thanks & Regards</p>
   </body>
@@ -40,16 +39,10 @@ function onFormSubmit(e) {
 }
 
 function doGet(e) {
-  let action = e.parameter.action;
-  if(action == "accept") {
-    sheet.getRange(currentRow, 10, 1, 1).setValue("accepted");
-  }
-  else if(action == "reject") {
-    sheet.getRange(currentRow, 10, 1, 1).setValue("rejected");
-  }
   return HtmlService.createHtmlOutputFromFile("th-response");
 }
 
-function thResponse(comment) {
-    sheet.getRange(currentRow, 11, 1, 1).setValue(comment);
+function thResponse(rowUI, say, comment) {
+  sheet.getRange(rowUI, 10, 1, 1).setValue(say);
+  sheet.getRange(rowUI, 11, 1, 1).setValue(comment);
 }
