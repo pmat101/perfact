@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="myForm">
+      <label for="comment">Add a comment (optional)</label><br>
+      <textarea id="comment" rows="10" cols="20"></textarea><br>
+      <input type="submit" value="Submit" onclick="submitForm()">
+    </form>
+    <script>
+      function submitForm() {
+        let comment = document.getElementById("comment").value;
+        google.script.run.thResponse(comment);
+      }
+    </script>
+  </body>
+</html>
