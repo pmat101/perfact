@@ -13,19 +13,23 @@
   </head>
   <body>
     <form id="myForm">
+      <label for="reqid">Request Number: </label><br>
+      <input type="number" id="reqid"><br><br>
       <label for="comment">Add a comment (optional)</label><br>
-      <textarea id="comment" rows="10" cols="30"></textarea><br>
-      <input type="submit" value="Accept" onclick="accepted()">
+      <textarea id="comment" rows="10" cols="30"></textarea><br><br>
+      &nbsp;<input type="submit" value="Accept" onclick="accepted()">&nbsp;
       <input type="submit" value="Reject" onclick="rejected()">
     </form>
     <script>
       function accepted() {
-        let a = window.location.search;
-        let b = new URLSearchParams(a);
-        let c = b.get("row");
-        let uid = parseInt(c);
+        let uid = parseInt(document.getElementById("reqid").value);
         let comment = document.getElementById("comment").value;
         google.script.run.thResponse(uid, "Accepted", comment);
+      }
+      function rejected() {
+        let uid = parseInt(document.getElementById("reqid").value);
+        let comment = document.getElementById("comment").value;
+        google.script.run.thResponse(uid, "Rejected", comment);
       }
     </script>
   </body>
