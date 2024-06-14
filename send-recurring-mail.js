@@ -15,11 +15,15 @@ function sendEmail() {
   // 02. SOP for Recording EAC Meetings via MS Teams (discuss with Shweta ma'am)
   // 04. PCODE list (remind Sakhsi Singhal for remaining PCODEs)
   
+  // dates and months are numbers but months are zero indexed
   if(currentDate == 1 && (currentMonth == 2 || currentMonth == 5 || currentMonth == 8 || currentMonth == 11)){
     markOutOfOffice();
   }
   else if(currentDate == 5 && (currentMonth == 2 || currentMonth == 5 || currentMonth == 8 || currentMonth == 11)){
     pgApprovedVendorList();
+  }
+  else if(currentDate == 7 && (currentMonth == 2 || currentMonth == 5 || currentMonth == 8 || currentMonth == 11)){
+    sopCommonPurchase();
   }
   else if(currentDate == 8){
     clientVisitChecklistZohoForm();
@@ -30,15 +34,17 @@ function sendEmail() {
   else if(currentDate == 12){
     setupGmailForOfflineUse();
   }
-  else if(currentDate == 13 && (currentMonth == 1 || currentMonth == 4 || currentMonth == 7 || currentMonth == 10)){
+  else if(currentDate == 13 && (currentMonth == 2 || currentMonth == 5 || currentMonth == 8 || currentMonth == 11)){
     governingCouncilSystem();
   }
-  // dates and months are numbers but months are zero indexed
   else if(currentDate == 14){
     saveTeamsRecording();
   }
   else if(currentDate == 15 && (currentMonth == 1 || currentMonth == 4 || currentMonth == 7 || currentMonth == 10)){
     chatAudioVideoCalls();
+  }
+  else if(currentDate == 15 && (currentMonth == 2 || currentMonth == 5 || currentMonth == 8 || currentMonth == 11)){
+    monthlyParty();
   }
   else if(currentDate == 18){
     sopForNamingCalendarInvites();
@@ -142,6 +148,96 @@ function pgApprovedVendorList () {
     <p>Please find below the link mentioned of PG Approved Vendor list Google sheet and all are requested to please enter the Vendor details in the same: https://docs.google.com/spreadsheets/d/1wiPocloQtPVNuJWBAEbLX59jXUjCyvLb8Of_agPukeM/edit?usp=sharing</p>
     <p>For any office repair/ maintenance work Admin Team will coordinate with the Vendor, all departments should raise a ticket to Freshdesk with CC to Team Admin for any issue.</p>
     <p>For any Lab Specific work i.e. in which Lab Section's intervention is required, only then Lab section will coordinate with the vendor</p>
+    <br>
+    <p>--------------------------</p>
+    <p>Thanks & Regards</p>
+    <br>
+  </body>
+  `;
+  GmailApp.sendEmail(recipient, subject, body, {
+    htmlBody: body,
+    name: name,
+    cc: cc
+  });
+}
+
+function sopCommonPurchase() {
+  const recipient = "family@perfactgroup.in";
+  const subject = "SOP (Common Purchase)";
+  const name = "IT Administrator / PERFACT";
+  const cc = "topmanagement@perfactgroup.in";
+  const body = `
+    <head></head>
+    <body>
+    <p>Dear all,</p>
+    <p>Please find below the SOP for Common Purchase.</p>
+    <br>
+    <h1 style="font-weight:bold; text-align:center">Standard Operating Procedure: Common Purchase Process</h1>
+    <br>
+    <h2><strong>Purpose: </strong></h2>
+    <p>The purpose of this Standard Operating Procedure (SOP) is to establish a standardized process for requesting and procuring items from the administration team. This SOP ensures efficient and timely fulfillment of employee requests while maintaining an accurate inventory and proper financial documentation.</p>
+    <br>
+    <h2><strong>Objectives: </strong></h2>
+      <ol>
+        <li>To streamline the process of requesting and procuring items from the administration team.</li>
+        <li>To maintain an updated inventory of available items.</li>
+        <li>To ensure proper financial documentation and payment processes.</li>
+      </ol>
+    <br>
+    <h2><strong>Procedure: </strong></h2>
+    <h3><em>Step 1: </em> Request Submission</h3>
+    <ul>
+      <li>When an employee requires any items from the admin, they must fill out the Common Request Form.</li>
+      <li>The form should include the details of the requested item, quantity, and any specific requirements.</li>
+    </ul>
+    <br>
+    <h3><em>Step 2: </em> Availability Check</h3>
+    <ul>
+      <li>The admin team will check the availability of the requested item in their stock.</li>
+      <li>If the item is available, the admin team will issue it immediately to the employee.</li>
+      <li>The admin team will update their stock accordingly and share the Combid (Common Purchase Bid) with the top management for purchasing approval, ensuring desired stock levels are maintained.</li>
+    </ul>
+    <br>
+    <h3><em>Step 3: </em> Unavailability of Item</h3>
+    <ul>
+      <li>If the requested item is not available in stock, the admin team will gather quotes from different vendors.</li>
+      <li>The admin team will create a Combid request that includes the vendor quotes.</li>
+      <li>The Combid request will be sent to the top management for approval.</li>
+    </ul>
+    <br>
+    <h3><em>Step 4: </em> Procurement Request</h3>
+    <ul>
+      <li>Upon receiving approval from the management, the admin team will prepare a procurement request.</li>
+      <li>The procurement request will be sent via email to the accounts department.</li>
+      <li>The email will include all necessary details, such as payment terms, vendor account information, and item delivery time.</li>
+    </ul>
+    <br>
+    <h3><em>Step 5: </em> Payment and Delivery</h3>
+    <ul>
+      <li>The accounts department will make the payment to the vendor as per the provided details.</li>
+      <li>Once the payment is made, the vendor will deliver the item to the office.</li>
+    </ul>
+    <br>
+    <h3><em>Step 6: </em> Item Issuance and Stock Update</h3>
+    <ul>
+      <li>The admin team will receive the item from the vendor.</li>
+      <li>They will issue the received item to the requester.</li>
+      <li>The admin team will update their stock accordingly to maintain accurate inventory records.</li>
+    </ul>
+    <br>
+    <h3><em>Step 7: </em> Financial Documentation</h3>
+    <ul>
+      <li>The admin team will raise the bill in the expense.zoho.com system for proper financial documentation.</li>
+    </ul>
+    <br>
+    <h2><strong>Supporting Information: </strong></h2>
+    <ul>
+      <li>For detailed instructions and guidelines, refer to the complete SOP document available at the following link: [SOP Link: https://docs.google.com/document/d/1WIBMgxoNRILXN8_fUHfnIXGMY4iSA6i6aFp3RYtGWLg/edit?usp=sharing]</li>
+      <li>To access the Common Purchase Form for submitting requests, please click on the following link: [Form Link: https://zfrmz.com/44MxSiwpKIxnFaNQBHWx]</li>
+    </ul>
+    <br>
+    <p>By following this SOP, we aim to ensure a standardized and efficient process for common purchases within our organization. If you have any questions or require further clarification, please contact the administration team.</p>
+    <p>Thank you for your cooperation in implementing this SOP effectively.</p>
     <br>
     <p>--------------------------</p>
     <p>Thanks & Regards</p>
@@ -274,13 +370,98 @@ function governingCouncilSystem() {
   const name = "IT Administrator / PERFACT";
   const cc = "topmanagement@perfactgroup.in";
   const body = `
-  <head></head>
+  <head>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
   <body>
     <p>Dear all,</p>
-    <p>We're always striving to be at the forefront of innovation in all aspects of business including corporate governance. That's why, after introducing the Council system last year to enhance our decision-making and operational efficiency, we're now excited to launch a Governing Council as the top-most body in the organisation. This move is set to amplify our organization and impact.</p>
-    <p>This council will be the operational powerhouse, composed of key figures from across our organization, including top management and other council chairs. Meeting monthly, their goal is to ensure alignment with our objectives, address any challenges, and strategize for the future. For a deeper dive into the changes and the new system, please check out the attached PDF.</p>
-    <p>The Governing Council will now oversee 8 major councils, streamlining processes and creating a more balanced environment for efficient resolution. Additionally, we're saying goodbye to sub-councils and task forces in favor of a leaner governance model. The introduction of working groups, taking over the roles of sub-councils, will bring enhanced powers and responsibilities, aiming for efficiency without the need for excessive oversight. With the introduction of this tremendous change, all major councils are requested to conduct a review of all active working groups and sub councils under their supervision, in order to reconstitute according to this new System alongwith their goals, objectives and portfolio division.</p>
-    <p>This is a pivotal moment for us to drive change and march forward together. Your feedback is invaluable, and we're eager to hear your thoughts.</p>
+    <p>This email provides a comprehensive update on our recently implemented governance structure, along with resources to enhance communication and participation.</p>
+    <br>
+    <h2>Strengthened Governance for Strategic Growth</h2>
+    <p>As previously communicated, we are pleased to announce the establishment of the Governing Council, responsible for overseeing strategic decision-making. This high-level body leads eight specialized councils focused on critical areas such as accreditation and employee development.</p>
+    <br>
+    <h2>Enhanced Collaboration and Accessibility</h2>
+    <ul>
+      <li><h3>Streamlined Governance Structure:</h3>
+        <ul>
+          <li><strong>Governing Council: </strong> Provides strategic direction and oversees major decisions.</li>
+          <li><strong>8 Specialized Councils: </strong> (Staff, Accreditation, EIA, Business, Lab, Recruitment, IT, Admin): Offer expertise in their respective domains.</li>
+          <li><strong>Working Groups: </strong> Replace sub-councils to promote efficiency and focused action.</li>
+        </ul>
+      </li>
+      <li><h3>Direct Council Communication: </h3> Each council now has a dedicated email address to facilitate your inquiries and suggestions:
+        <ul>
+        <br>
+          <li><strong>Governing Council: </strong> gov.council@perfactgroup.in</li>
+          <br>
+          <li>
+            <table>
+              <thead>
+                <tr>
+                  <th>Council Name</th>
+                  <th>Email Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Staff Council</td>
+                  <td>staff.council@perfactgroup.in</td>
+                </tr>
+                <tr>
+                  <td>Accreditation Council</td>
+                  <td>acrd.council@perfactgroup.in</td>
+                </tr>
+                <tr>
+                  <td>EIA Council</td>
+                  <td>eia.council@perfactgroup.in</td>
+                </tr>
+                <tr>
+                  <td>Business Council</td>
+                  <td>bsns.council@perfactgroup.in</td>
+                </tr>
+                <tr>
+                  <td>Lab Council</td>
+                  <td>lab.council@perfactgroup.in</td>
+                </tr>
+                <tr>
+                  <td>Recruitment Council</td>
+                  <td>rct.council@perfactgroup.in</td>
+                </tr>
+                <tr>
+                  <td>IT Council</td>
+                  <td>it.council@perfactgroup.in</td>
+                </tr>
+                <tr>
+                  <td>Admin Council</td>
+                  <td>admin.council@perfactgroup.in</td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <br>
+    <h2>Embrace Continuous Improvement</h2>
+    <p>We actively seek your valuable feedback on this new structure. Your participation is critical to shaping Perfact's future. We encourage you to actively engage with your respective council or the Governing Council directly.</p>
+    <br>
+    <p>Detailed PDFs outlining the new system, goals, changes and list of council members are attached.</p>
+    <p>Working together through collaborative governance, we can achieve exceptional results.</p>
     <br>
     <p>--------------------------</p>
     <p>Thanks & Regards</p>
@@ -291,7 +472,179 @@ function governingCouncilSystem() {
     htmlBody: body,
     name: name,
     cc: cc,
-    attachments:[DriveApp.getFilesByName("latest-council-system-v2.6-2024.pdf").next().getBlob()]
+    attachments:[
+      DriveApp.getFilesByName("governing-Council-System-v2.6-Latest-20-5-24.pdf").next().getBlob(),
+      DriveApp.getFilesByName("governing-Council-System-Structure-Latest-20-5-24.pdf").next().getBlob()
+      ]
+    });
+}
+
+function monthlyParty() {
+  const recipient = "family@perfactgroup.in";
+  const subject = "Team-wise monthly event schedule";
+  const name = "IT Administrator / PERFACT";
+  const cc = "topmanagement@perfactgroup.in";
+  const body = `
+  <head>
+    <style>
+      h3 {
+        background-color: #FF9900;
+        padding: 0.5em 1em;
+        display: inline;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th, td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+      th {
+        background-color: #00FFFF;
+      }
+      td {
+        background-color: #B7E1CD;
+      }
+    </style>
+  </head>
+  <body>
+    <p>Dear all,</p>
+    <p>We are pleased to inform you that we have curated a team-wise event schedule to help organize office events effectively. This schedule is intended to ensure that everyone in the company gets an opportunity to participate in team events and build stronger connections with their colleagues.</p>
+    <p>To ensure smooth coordination, we kindly request that the team organizing the party sends an email to both the Account and Admin teams in advance, along with the proposed budget. This will help us keep track of the planned events and allocate resources accordingly. The email should include the following details:</p>
+    <ul>
+      <li>Proposed date and time of the party</li>
+      <li>Venue and theme of the party</li>
+      <li>Estimated number of attendees</li>
+      <li>Budget and any sponsors (if applicable)</li>
+    </ul>
+    <br>
+    <p>We would like to remind all the teams that the proposed budget should be within the allocated budget for the party calendar. If you require any assistance, please do not hesitate to contact the Admin team, who will be happy to help you with any concerns or questions you may have.</p>
+    <p>Let us all work together to make these events enjoyable for everyone.</p>
+    <br>
+    <h3>Team Wise Calendar :-</h3>
+    <hr>
+    <table>
+      <thead>
+        <tr>
+          <th>S. No</th>
+          <th>Team Name</th>
+          <th>Month</th>
+          <th>Festival or Birthday</th>
+          <th>Date</th>
+          <th>Day</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Pond Team</td>
+          <td>April</td>
+          <td>Baisakhi</td>
+          <td>13/04/2024</td>
+          <td>Saturday</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Estuary Team</td>
+          <td>May</td>
+          <td>International Labour Day</td>
+          <td>01/05/2024</td>
+          <td>Wednesday</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Reservoir Team</td>
+          <td>June</td>
+          <td>World Environment Day</td>
+          <td>05/06/2024</td>
+          <td>Wednesday</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Fountain Team</td>
+          <td>July</td>
+          <td>Guru Poornima</td>
+          <td>19/07/2024</td>
+          <td>Friday</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Arctic Team</td>
+          <td>August</td>
+          <td>Independence Day</td>
+          <td>14/08/2024</td>
+          <td>Wednesday</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Canal Team</td>
+          <td>September</td>
+          <td>Teacher's Day</td>
+          <td>05/09/2024</td>
+          <td>Thursday</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Tributary Team</td>
+          <td>October</td>
+          <td>Dussehra / Diwali</td>
+          <td>25/10/2024</td>
+          <td>Wednesday</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>Glacier Team</td>
+          <td>November</td>
+          <td>Children's Day</td>
+          <td>14/11/2024</td>
+          <td>Thursday</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>Ocean Team</td>
+          <td>December</td>
+          <td>Christmas</td>
+          <td>24/12/2024</td>
+          <td>Tuesday</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>Pool Team</td>
+          <td>January</td>
+          <td>Lohri</td>
+          <td>13/01/2025</td>
+          <td>Monday</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>Creek Team</td>
+          <td>February</td>
+          <td>Vasant Panchami</td>
+          <td>01/02/2025</td>
+          <td>Saturday</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>Lakes Team</td>
+          <td>March</td>
+          <td>Holi</td>
+          <td>12/03/2025</td>
+          <td>Wednesday</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <p>--------------------------</p>
+    <p>Thanks & Regards</p>
+    <br>
+  </body>
+  `;
+  GmailApp.sendEmail(recipient, subject, body, {
+    htmlBody: body,
+    name: name,
+    cc: cc
     });
 }
 
@@ -474,6 +827,7 @@ function chatAudioVideoCalls () {
     cc: cc
     });
 }
+
 function sopForNamingCalendarInvites() {
   const recipient = "family@perfactgroup.in";
   const subject = "Standard Operating Procedure (SOP) for Naming Calendar Invites";
