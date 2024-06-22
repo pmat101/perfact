@@ -52,6 +52,9 @@ function sendEmail() {
   else if(currentDate == 20){
     gatePassPolicy();
   }
+  else if(currentDate == 21 && (currentMonth == 2 || currentMonth == 5 || currentMonth == 8 || currentMonth == 11)){
+    laptopBag();
+  }
   else if(currentDate == 22){
     masterPPTnGuidelines();
   }
@@ -893,6 +896,44 @@ function gatePassPolicy() {
     name: name,
     cc: cc
     });
+}
+
+function laptopBag () {
+  const recipient = "family@perfactgroup.in";
+  const subject = "Laptop Bag Maintenance Policy";
+  const name = "IT Administrator / PERFACT";
+  const cc = "topmanagement@perfactgroup.in";
+  const body = `
+  <head></head>
+  <body>
+    <p>Dear all,</p>
+    <p>In our ongoing efforts to ensure the efficient use of company resources, we have implemented a Laptop Bag Maintenance Policy. This policy is designed to streamline the issuance and replacement of laptop bags for our team members who use them for various purposes, including site visits, fieldwork, and regular office use.</p>
+    <h3><u>Policy Details:</u></h3>
+    <ol>
+      <li><strong>Eligibility for Laptop Bag Issuance:</strong><br>
+      &nbsp; - Laptop bags will only be issued to employees who possess laptops and engage in site visits or other fieldwork as part of their job responsibilities.
+      </li>
+      <li><strong>Bag Replacement for Field and Site Personnel:</strong><br>
+      &nbsp; - Laptop bags used exclusively for fieldwork and site visits will be eligible for replacement after a period of six (6) months from the date of issue. Replacement will be considered for bags that have undergone wear and tear due to work-related activities.
+      </li>
+      <li><strong>Bag Replacement for Regular Users:</strong><br>
+      &nbsp; - Laptop bags used for regular office purposes will be eligible for replacement after a period of one (1) year from the date of issue. Replacement will be considered for bags that have experienced normal wear and tear during daily use.
+      </li>
+      <li><strong>Bag Repair Responsibility:</strong><br>
+      &nbsp; - Prior to the eligible replacement period, employees are responsible for repairing their bags in case of any damage or issues encountered. The company will not issue new bags within the first six (6) months for field and site personnel, and within the first year for regular users unless there are exceptional circumstances.
+      </li>
+    </ol>
+    <br>
+    <p>--------------------------</p>
+    <p>Thanks & Regards</p>
+    <br>
+  </body>
+  `;
+  GmailApp.sendEmail(recipient, subject, body, {
+    htmlBody: body,
+    name: name,
+    cc: cc
+  });
 }
 
 function masterPPTnGuidelines() {
