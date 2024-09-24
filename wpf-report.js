@@ -25,7 +25,7 @@ function summary () {
   let today = new Date();
   let str = today.getDate();
   str = str + "/" + (today.getMonth()+1) + "/" + today.getFullYear();
-  let pdfFile = docFile.getAs('application/pdf');
+  let pdfFile = docFile.getAs('application/pdf').setName(`WPF-report-${str}`);
   const recipient = "topmanagement@perfactgroup.in";
   const subject = `Weekly Performance Update - [${str}]`;
   const cc = "it.council@perfactgroup.in";
@@ -55,22 +55,15 @@ function summary () {
   });
 }
 
-function mail (docFile) {
-}
-
-function entities (symbol) {
-  symbol = symbol.replace("&#x2f;", "/");
-  symbol = symbol.replace("&rdquo;", '"');
-  symbol = symbol.replace("&ldquo;", '"');
-  symbol = symbol.replace("&#x28;", "(");
-  symbol = symbol.replace("&#x29;", ")");
-  symbol = symbol.replace("&amp;", "&");
-  symbol = symbol.replace("&#x2b;", "+");
-  symbol = symbol.replace("&#x3d;", "=");
-  symbol = symbol.replace("&#x25;", "%");
-  symbol = symbol.replace("&#x27;", '"');
-  symbol = symbol.replace("&#x3a;", ":");
-  return symbol;
+function entities (entity) {
+  const arr = ["&#x2f;", "/", "&rdquo;", '"', "&ldquo;", '"', "&#x28;", "(", "&#x29;", ")", "&amp;", "&", "&#x2b;", "+", "&#x3d;", "=", "&#x25;", "%", "&#x27;", '"', "&#x3a;", ":", "&#x3b;", ";"];
+  for(let i=0; i<arr.length; i=i+2) {
+    while(entity.match(arr[i]) != null) {
+      let e1 = entity.match(arr[i]);
+      entity = entity.replace(e1[0], arr[i+1]);
+    }
+  }
+  return entity;
 }
 
 function glacier (docBody) {
@@ -906,105 +899,121 @@ function multi (name, colour, docBody) {
   docBody.appendParagraph(str[0]).setAttributes(style);
   docBody.appendParagraph("\r\r");
   msg = msg.replace("<table>", "");
-  regEx = new RegExp(`${"<tr>"}(.*?)${"</td>"}`);
+  regEx = new RegExp(`${"Number of TFs filled</td><td >:</td><td><table >"}(.*?)${"</table>"}`);
   str = msg.match(regEx);
-  msg = msg.replace(str[0], "");
-  str = str[0].replace("<tr><td >", "");
-  str = str.replace("</td>", ":");
-  style[DocumentApp.Attribute.HORIZONTAL_ALIGNMENT] = DocumentApp.HorizontalAlignment.LEFT;
-  style[DocumentApp.Attribute.FONT_SIZE] = 14;
-  style[DocumentApp.Attribute.BOLD] = false;
-  str = entities(str);
-  docBody.appendParagraph(str).setAttributes(style);
-  regEx = new RegExp(`${"<td >"}(.*?)${"</td>"}`);
-  str = msg.match(regEx);
-  msg = msg.replace(str[0], "");
-  regEx = new RegExp(`${"<thead>"}(.*?)${"</thead>"}`);
-  let headings = msg.match(regEx);
-  let countCols = headings[0].split("<th >");
-  let cells = [];
-  for(let i=0; i<countCols.length - 1; i++) {
-    cells[i] = [];
-    regEx = new RegExp(`${"<th >"}(.*?)${"</th>"}`);
-    let th = headings[0].match(regEx);
-    headings[0] = headings[0].replace(th[0], "");
-    let temp = th[0].replace("<th >", "");
-    temp = temp.replace("</th>", "");
-    cells[0][i] = temp;
-  }
-  regEx = new RegExp(`${"<td>"}(.*?)${"</thead>"}`);
-  str = msg.match(regEx);
-  msg = msg.replace(str[0], "");
-  regEx = new RegExp(`${"<tbody>"}(.*?)${"</tbody>"}`);
-  let values = msg.match(regEx);
-  let countRows = values[0].split("<td >");
-  for(let i=1; i<=(countRows.length-1)/(countCols.length-1); i++) {
-    cells[i] = [];
-    for(let j=0; j < countCols.length-1; j++){
-      regEx = new RegExp(`${"<td >"}(.*?)${"</td>"}`);
-      let td = values[0].match(regEx);
-      values[0] = values[0].replace(td[0], "");
-      let temp = td[0].replace("<td >", "");
-      temp = temp.replace("</td>", "");
-      temp = entities(temp);
-      cells[i][j] = temp;
+  if(str.length > 1) {   // TF table
+    regEx = new RegExp(`${"<tr>"}(.*?)${"</td>"}`);
+    str = msg.match(regEx);
+    msg = msg.replace(str[0], "");
+    str = str[0].replace("<tr><td >", "");
+    str = str.replace("</td>", ":");
+    style[DocumentApp.Attribute.HORIZONTAL_ALIGNMENT] = DocumentApp.HorizontalAlignment.LEFT;
+    style[DocumentApp.Attribute.FONT_SIZE] = 14;
+    style[DocumentApp.Attribute.BOLD] = false;
+    str = entities(str);
+    docBody.appendParagraph(str).setAttributes(style);
+    regEx = new RegExp(`${"<td >"}(.*?)${"</td>"}`);
+    str = msg.match(regEx);
+    msg = msg.replace(str[0], "");
+    regEx = new RegExp(`${"<thead>"}(.*?)${"</thead>"}`);
+    let headings = msg.match(regEx);
+    let countCols = headings[0].split("<th >");
+    let cells = [];
+    for(let i=0; i<countCols.length - 1; i++) {
+      cells[i] = [];
+      regEx = new RegExp(`${"<th >"}(.*?)${"</th>"}`);
+      let th = headings[0].match(regEx);
+      headings[0] = headings[0].replace(th[0], "");
+      let temp = th[0].replace("<th >", "");
+      temp = temp.replace("</th>", "");
+      cells[0][i] = temp;
     }
-  }
-  regEx = new RegExp(`${"<tbody>"}(.*?)${"</tbody>"}`);
-  str = msg.match(regEx);
-  msg = msg.replace(str[0], "");
-  msg = msg.replace("</table></td></tr>", "");
-  style[DocumentApp.Attribute.FONT_SIZE] = 12;
-  let table = docBody.appendTable(cells).setAttributes(style);
-  docBody.appendParagraph("\r");
-  regEx = new RegExp(`${"<tr>"}(.*?)${"</td>"}`);
-  str = msg.match(regEx);
-  msg = msg.replace(str[0], "");
-  str = str[0].replace("<tr><td >", "");
-  str = str.replace("</td>", ":");
-  style[DocumentApp.Attribute.FONT_SIZE] = 14;
-  str = entities(str);
-  docBody.appendParagraph(str).setAttributes(style);
-  regEx = new RegExp(`${"<td >"}(.*?)${"</td>"}`);
-  str = msg.match(regEx);
-  msg = msg.replace(str[0], "");
-  regEx = new RegExp(`${"<thead>"}(.*?)${"</thead>"}`);
-  headings = msg.match(regEx);
-  countCols = headings[0].split("<th >");
-  cells = [];
-  for(let i=0; i<countCols.length - 1; i++) {
-    cells[i] = [];
-    regEx = new RegExp(`${"<th >"}(.*?)${"</th>"}`);
-    let th = headings[0].match(regEx);
-    headings[0] = headings[0].replace(th[0], "");
-    let temp = th[0].replace("<th >", "");
-    temp = temp.replace("</th>", "");
-    cells[0][i] = temp;
-  }
-  regEx = new RegExp(`${"<td>"}(.*?)${"</thead>"}`);
-  str = msg.match(regEx);
-  msg = msg.replace(str[0], "");
-  regEx = new RegExp(`${"<tbody>"}(.*?)${"</tbody>"}`);
-  values = msg.match(regEx);
-  countRows = values[0].split("<td >");
-  for(let i=1; i<=(countRows.length-1)/(countCols.length-1); i++) {
-    for(let j=0; j < countCols.length-1; j++){
-      regEx = new RegExp(`${"<td >"}(.*?)${"</td>"}`);
-      let td = values[0].match(regEx);
-      values[0] = values[0].replace(td[0], "");
-      let temp = td[0].replace("<td >", "");
-      temp = temp.replace("</td>", "");
-      temp = entities(temp);
-      cells[i][j] = temp;
+    regEx = new RegExp(`${"<td>"}(.*?)${"</thead>"}`);
+    str = msg.match(regEx);
+    msg = msg.replace(str[0], "");
+    regEx = new RegExp(`${"<tbody>"}(.*?)${"</tbody>"}`);
+    let values = msg.match(regEx);
+    let countRows = values[0].split("<td >");
+    for(let i=1; i<=(countRows.length-1)/(countCols.length-1); i++) {
+      cells[i] = [];
+      for(let j=0; j < countCols.length-1; j++){
+        regEx = new RegExp(`${"<td >"}(.*?)${"</td>"}`);
+        let td = values[0].match(regEx);
+        values[0] = values[0].replace(td[0], "");
+        let temp = td[0].replace("<td >", "");
+        temp = temp.replace("</td>", "");
+        temp = entities(temp);
+        cells[i][j] = temp;
+      }
     }
-  }
-  regEx = new RegExp(`${"<tbody>"}(.*?)${"</tbody>"}`);
+    regEx = new RegExp(`${"<tbody>"}(.*?)${"</tbody>"}`);
+    str = msg.match(regEx);
+    msg = msg.replace(str[0], "");
+    msg = msg.replace("</table></td></tr>", "");
+    style[DocumentApp.Attribute.FONT_SIZE] = 12;
+    let table = docBody.appendTable(cells).setAttributes(style);
+    docBody.appendParagraph("\r");
+  } else {
+      regEx = new RegExp(`${"<tr><td>Number of TFs filled"}(.*?)${":</td><td></td></tr>"}`);
+      str = msg.match(regEx);
+      msg = msg.replace(str[0], "");
+  }    // TF table
+  regEx = new RegExp(`${"Milestone achieved this week</td><td >:</td><td><table >"}(.*?)${"</table>"}`);
   str = msg.match(regEx);
-  msg = msg.replace(str[0], "");
-  msg = msg.replace("</table></td></tr>", "");
-  style[DocumentApp.Attribute.FONT_SIZE] = 12;
-  table = docBody.appendTable(cells).setAttributes(style);
-  docBody.appendParagraph("\r");
+  if(str != null) {   // Milestone table
+    regEx = new RegExp(`${"<tr>"}(.*?)${"</td>"}`);
+    str = msg.match(regEx);
+    msg = msg.replace(str[0], "");
+    str = str[0].replace("<tr><td >", "");
+    str = str.replace("</td>", ":");
+    style[DocumentApp.Attribute.FONT_SIZE] = 14;
+    str = entities(str);
+    docBody.appendParagraph(str).setAttributes(style);
+    regEx = new RegExp(`${"<td >"}(.*?)${"</td>"}`);
+    str = msg.match(regEx);
+    msg = msg.replace(str[0], "");
+    regEx = new RegExp(`${"<thead>"}(.*?)${"</thead>"}`);
+    headings = msg.match(regEx);
+    countCols = headings[0].split("<th >");
+    cells = [];
+    for(let i=0; i<countCols.length - 1; i++) {
+      cells[i] = [];
+      regEx = new RegExp(`${"<th >"}(.*?)${"</th>"}`);
+      let th = headings[0].match(regEx);
+      headings[0] = headings[0].replace(th[0], "");
+      let temp = th[0].replace("<th >", "");
+      temp = temp.replace("</th>", "");
+      cells[0][i] = temp;
+    }
+    regEx = new RegExp(`${"<td>"}(.*?)${"</thead>"}`);
+    str = msg.match(regEx);
+    msg = msg.replace(str[0], "");
+    regEx = new RegExp(`${"<tbody>"}(.*?)${"</tbody>"}`);
+    values = msg.match(regEx);
+    countRows = values[0].split("<td >");
+    for(let i=1; i<=(countRows.length-1)/(countCols.length-1); i++) {
+      for(let j=0; j < countCols.length-1; j++){
+        regEx = new RegExp(`${"<td >"}(.*?)${"</td>"}`);
+        let td = values[0].match(regEx);
+        values[0] = values[0].replace(td[0], "");
+        let temp = td[0].replace("<td >", "");
+        temp = temp.replace("</td>", "");
+        temp = entities(temp);
+        cells[i][j] = temp;
+      }
+    }
+    regEx = new RegExp(`${"<tbody>"}(.*?)${"</tbody>"}`);
+    str = msg.match(regEx);
+    msg = msg.replace(str[0], "");
+    msg = msg.replace("</table></td></tr>", "");
+    style[DocumentApp.Attribute.FONT_SIZE] = 12;
+    table = docBody.appendTable(cells).setAttributes(style);
+    docBody.appendParagraph("\r");
+  } else {
+      regEx = new RegExp(`${"<tr><td>Milestone achieved this week"}(.*?)${":</td><td></td></tr>"}`);
+      str = msg.match(regEx);
+      msg = msg.replace(str[0], "");
+  }    // milestone table
   regEx = new RegExp(`${"<tr>"}(.*?)${"</td>"}`);
   str = msg.match(regEx);
   msg = msg.replace(str[0], "");
