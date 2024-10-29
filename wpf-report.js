@@ -3,17 +3,24 @@ function dailyCheck() {
   ScriptApp.newTrigger("summary")
   .timeBased()
   .everyWeeks(1)
-  .onWeekDay(ScriptApp.WeekDay.THURSDAY)
+  .onWeekDay(ScriptApp.WeekDay.TUESDAY)
   .atHour(18)
   .nearMinute(0)
   .create(); 
 }
 
 function doGet (e) {
-  let today = new Date();
-  let str = today.getDate();
-  str = str + "/" + (today.getMonth()+1) + "/" + today.getFullYear();
-  let getPDF = DriveApp.getFilesByName(`WPF-report-${str}`).next();   // WPF-report-${str}
+  let msg = GmailApp.search(`subject:(Weekly Performance Report -)`, 0, 1)[0];
+  if(msg == undefined){    // If unavailable
+    return;
+  }
+  msg = msg.getMessages()[0].getSubject();    // Get msg subject
+  let regEx = new RegExp(`${'<div><span class="colour"'}(.*?)${'float: none">'}`);
+  let str = msg.match(regEx);
+  msg = msg.replace("Weekly Performance Report - ", "");
+  msg = msg.replace("[", "");
+  msg = msg.replace("]", "");
+  let getPDF = DriveApp.getFilesByName(`WPF-report-${msg}`).next();   // WPF-report-${str}
   let pdfID = getPDF.getId();
   return HtmlService.createHtmlOutput(`
     <head>
@@ -34,28 +41,60 @@ function doGet (e) {
 }
 
 function summary () {
-  let docFile = DocumentApp.getActiveDocument()
+  let docFile = DocumentApp.getActiveDocument();
   let docBody = docFile.getBody();       // now take each line and put in doc file and then convert to PDF
   docBody.clear();
-  multi("Pool", "#741b47", docBody);
-  multi("Cove", "#741b47", docBody);
-  multi("Ocean", "#bf9000", docBody);
-  multi("Pond", "#38761d", docBody);
-  multi("Estuary", "#1155cc", docBody);
-  multi("Canal", "#1155cc", docBody);
-  multi("Tributary", "#990000", docBody);
-  multi("Delta", "#351c75", docBody);
+  let pool = multi("Pool", "#741b47", docBody);
+  let cove = multi("Cove", "#741b47", docBody);
+  let ocean = multi("Ocean", "#bf9000", docBody);
+  let pond = multi("Pond", "#38761d", docBody);
+  let estuary = multi("Estuary", "#1155cc", docBody);
+  let canal = multi("Canal", "#1155cc", docBody);
+  let tributary = multi("Tributary", "#990000", docBody);
+  let delta = multi("Delta", "#351c75", docBody);
+  let reserv = reservoir ("Reservoir", "#b45f06", docBody);
+  let lagoon = reservoir ("Lagoon", "#b45f06", docBody);
   glacier (docBody);
-  reservoir (docBody);
-  fountain (docBody);
+  fountain (docBody);    // remaining
+  const summarize = [
+    ["TEAM", "Bills Generated", "Total Working Hours"],
+    ["Pool", pool[0], pool[1]],
+    ["Cove", cove[0], cove[1]],
+    ["Ocean", ocean[0],ocean[1]],
+    ["Pond", pond[0], pond[1]],
+    ["Estuary", estuary[0], estuary[1]],
+    ["Canal", canal[0], canal[1]],
+    ["Tributary", tributary[0], tributary[1]],
+    ["Delta", delta[0], delta[1]],
+    ["Reservoir", reserv[0], reserv[1]],
+    ["Lagoon", lagoon[0], lagoon[1]],
+    ["TOTAL", parseInt(pool[0])+parseInt(cove[0])+parseInt(ocean[0])+parseInt(pond[0])+parseInt(estuary[0])+parseInt(canal[0])+parseInt(tributary[0])+parseInt(delta[0])+parseInt(reserv[0])+parseInt(lagoon[0]), parseInt(pool[1])+parseInt(cove[1])+parseInt(ocean[1])+parseInt(pond[1])+parseInt(estuary[1])+parseInt(canal[1])+parseInt(tributary[1])+parseInt(delta[1])+parseInt(reserv[1])+parseInt(lagoon[1])]
+  ];
+  let style = {};
+  style[DocumentApp.Attribute.HORIZONTAL_ALIGNMENT] = DocumentApp.HorizontalAlignment.CENTER;
+  style[DocumentApp.Attribute.FOREGROUND_COLOR] = "#000000";
+  style[DocumentApp.Attribute.FONT_SIZE] = 18;
+  style[DocumentApp.Attribute.BOLD] = true;
+  let title = "Team Performance Summary";
+  docBody.appendParagraph(title).setAttributes(style);
+  docBody.appendParagraph("\r\r");
+  style[DocumentApp.Attribute.FONT_SIZE] = 14;
+  let table = docBody.appendTable(summarize).setAttributes(style);
+  docBody.appendHorizontalRule();
+  docBody.appendParagraph("\r\r");
+  docFile.saveAndClose();
+  
+  Utilities.sleep(29000);
   let today = new Date();
   let str = today.getDate();
   str = str + "/" + (today.getMonth()+1) + "/" + today.getFullYear();
   let pdfFile = docFile.getAs('application/pdf');
-  const folder = DriveApp.getFolderById('18I57n_cPfehpfJKFGFPKXeLhewk3W7qQ');
-  let newPDF = folder.createFile(pdfFile).setName(`WPF-report-${str}`);   // WPF-report-${str};
+  const folder = DriveApp.getFolderById('18I57n_cPfehpfJKFGFPKXeLhewk3W7qQ'); // Folder ID: 18I57n_cPfehpfJKFGFPKXeLhewk3W7qQ
+  let newPDF = folder.createFile(pdfFile);
+  newPDF = newPDF.setName(`WPF-report-${str}`);
+  Utilities.sleep(29000);
   const recipient = "gov.council@perfactgroup.in";
-  const subject = `Weekly Performance Update - [${str}]`;
+  const subject = `Weekly Performance Report - [${str}]`;
   const cc = "it.council@perfactgroup.in";
   const name = "IT/ COUNCIL/ PERFACT";
   const alias = GmailApp.getAliases();
@@ -66,8 +105,9 @@ function summary () {
       <p>Please find attached the latest weekly performance report, consolidating data from all team WPFs submitted for the week ending [${str}].</p>
       <p>This report provides a comprehensive overview of team progress, key achievements, and any identified challenges.</p>
       <p>We believe this data will be valuable in tracking performance and making informed decisions.</p>
+      <p>This updated report is also available on the <a href="intranet.perfactgroup.in">INTRANET</a> under the MIS tab, accessible only to the Governing and IT Councils.</p>
       <p>Please let us know if you have any questions or require further details.</p>
-      <p style="font-size: 1.1em"><strong>Please Note</strong>: This updated report is also available on the <a href="intranet.perfactgroup.in">INTRANET</a> under the MIS tab, accessible only to the Governing Council and IT Council.</p>
+      <p style="font-size: 1.1em"><strong>Please Note</strong>: <em>Summary table of the bills generated and time invested by each team in the past week is available at the bottom of the report.</em></p>
       <p>Thank you for your valuable input and support.</p>
       <br>
       <p>--------------------------</p>
@@ -82,6 +122,52 @@ function summary () {
     from: alias[0],
     cc: cc
   });
+  
+}
+
+function bill(msg) {
+  let regEx = new RegExp(`${"TF07"}(.*?)${"</tr>"}`);
+  let str = msg.match(regEx);
+  if(str != null) {
+    str = str[0].replace("TF07</td>", "");
+    regEx = new RegExp(`${"<td  >"}(.*?)${"</td>"}`);
+    let subStr = str.match(regEx);
+    str = str.replace(subStr[0], "");
+    regEx = new RegExp(`${"<td  >"}(.*?)${"</td>"}`);
+    subStr = str.match(regEx);
+    subStr = subStr[0].replace("<td  >", "");
+    subStr = subStr.replace("</td>", "");
+    return subStr;
+  } else return 0;
+}
+
+function reservoirBill(msg) {
+  let totality = 0;
+  let regEx = new RegExp(`${"<thead>"}(.*?)${"</tbody>"}`);
+  let str = msg.match(regEx);
+  for(let i=0; i<5; i++) {
+    regEx = new RegExp(`${"<td  >"}(.*?)${"</td>"}`);
+    let subStr = str[0].match(regEx);
+    subStr = subStr[0].replace("<td  >", "");
+    subStr = subStr.replace("</td>", "");
+    totality = totality + parseInt(subStr);
+    str[0] = str[0].replace(subStr, "");
+    str[0] = str[0].replace("<td  >", "");
+    str[0] = str[0].replace("</td>", "");
+  }
+  return totality;
+}
+
+function tWO(msg) {
+    let regEx = new RegExp(`${"<tr>"}(.*?)${"</td>"}`);
+    let str = msg.match(regEx);
+    msg = msg.replace(str[0], "");
+    regEx = new RegExp(`${"<td >"}(.*?)${"</td>"}`);
+    str = msg.match(regEx);
+    msg = msg.replace(str[0], "");
+    msg = msg.replace("<td >", "");
+    msg = msg.replace("</td></tr>", "");
+    return msg;
 }
 
 function entities (entity) {
@@ -201,6 +287,7 @@ function multiLine (msg, docBody, style) {
 }
 
 function multi (name, colour, docBody) {
+  let tf07;
   let past = new Date();
   past.setDate(past.getDate() - 7);
   let pastDate = `${past.getFullYear()}/${past.getMonth()+1}/${past.getDate()}`;
@@ -271,6 +358,7 @@ function multi (name, colour, docBody) {
     subStr = subStr.replaceAll("<table >", "");
     docBody.appendParagraph(subStr).setAttributes(style);
     msg = msg.replace(str[0], "");
+    tf07 = bill(msg);
     let cells = tables(msg);
     style[DocumentApp.Attribute.FONT_SIZE] = 12;
     let table = docBody.appendTable(cells).setAttributes(style);
@@ -281,6 +369,7 @@ function multi (name, colour, docBody) {
   } else {
     docBody.editAsText().appendText(" No");
     docBody.appendParagraph("\r");
+    tf07 = 0;
   }
   regEx = new RegExp(`${'TFs filled this week'}(.*?)${'</tr>'}`);
   str = msg.match(regEx);
@@ -325,7 +414,7 @@ function multi (name, colour, docBody) {
   regEx = new RegExp(`${'<tr><td >Milestone'}(.*?)${'</tr>'}`);
   str = msg.match(regEx);
   msg = msg.replace(str[0], "");
-  regEx = new RegExp(`${'<tr><td  >Team Work'}(.*?)${'<table >'}`);    // Team work info
+  regEx = new RegExp(`${'<tr><td  >'}(.*?)${'<table >'}`);    // Team work info
   str = msg.match(regEx);
   subStr = str[0].replaceAll("</td>", "");
   subStr = subStr.replaceAll("<td  >", "");
@@ -346,6 +435,7 @@ function multi (name, colour, docBody) {
   // Total working hours
   regEx = new RegExp(`${'<tr>'}(.*?)${'</tr>'}`);
   str = msg.match(regEx);
+  let totality = tWO(str[0]);
   let line = single(str[0]);
   style[DocumentApp.Attribute.FONT_SIZE] = 14;
   line = entities(line);
@@ -419,6 +509,7 @@ function multi (name, colour, docBody) {
   
   docBody.appendHorizontalRule();
   docBody.appendParagraph("\r\r");
+  return [tf07, totality];
 }
 
 function glacier (docBody) {
@@ -626,14 +717,14 @@ function glacier (docBody) {
   docBody.appendParagraph("\r\r");
 }
 
-function reservoir (docBody) {
+function reservoir (name, colour, docBody) {
   let past = new Date();
   past.setDate(past.getDate() - 7);
   let pastDate = `${past.getFullYear()}/${past.getMonth()+1}/${past.getDate()}`;
   let future = new Date();
   future.setDate(future.getDate() + 1);
   let futureDate = `${future.getFullYear()}/${future.getMonth()+1}/${future.getDate()}`;
-  let msg = GmailApp.search(`subject:(Team Performance of Reservoir for the week) after:${pastDate} before:${futureDate}`, 0, 1)[0];
+  let msg = GmailApp.search(`subject:(Team Performance of ${name} for the week) after:${pastDate} before:${futureDate}`, 0, 1)[0];
   if(msg == undefined){    // If unavailable
     return;
   }
@@ -662,18 +753,18 @@ function reservoir (docBody) {
   str = msg.match(regEx);
   let style = {};
   style[DocumentApp.Attribute.HORIZONTAL_ALIGNMENT] = DocumentApp.HorizontalAlignment.CENTER;
-  style[DocumentApp.Attribute.FOREGROUND_COLOR] = "#b45f06";
+  style[DocumentApp.Attribute.FOREGROUND_COLOR] = colour;
   style[DocumentApp.Attribute.FONT_SIZE] = 18;
   style[DocumentApp.Attribute.BOLD] = true;
   str = entities(str[0]);
   docBody.appendParagraph(str).setAttributes(style);
   docBody.appendParagraph("\r\r");
-  regEx = new RegExp(`${'Team Performance'}(.*?)${'Number of TF'}`);
+  regEx = new RegExp(`${'Team Performance'}(.*?)${'Number of submissions'}`);
   str = msg.match(regEx);
-  msg = msg.replace(str[0], "Number of TF");
+  msg = msg.replace(str[0], "Number of submissions");
 
-  // Proposal sent
-  regEx = new RegExp(`${'Number of TF'}(.*?)${'<table'}`);
+  // No of submissions
+  regEx = new RegExp(`${'Number of submissions'}(.*?)${'<table'}`);
   str = msg.match(regEx);
   let line = single(str[0]);
   style[DocumentApp.Attribute.HORIZONTAL_ALIGNMENT] = DocumentApp.HorizontalAlignment.LEFT;
@@ -685,6 +776,7 @@ function reservoir (docBody) {
   msg = msg.replace('>', "");
   msg = msg.replace(' ', "");
   msg = msg.replace('</table></td></tr>', "");
+  let submit = reservoirBill(msg);
   cells = matrix(msg);
   style[DocumentApp.Attribute.FONT_SIZE] = 12;
   table = docBody.appendTable(cells).setAttributes(style);
@@ -751,7 +843,7 @@ function reservoir (docBody) {
   msg = msg.replace(str[0], "");
 
   // Team work info
-  regEx = new RegExp(`${'<tr><td  >Team Work'}(.*?)${'<table >'}`);
+  regEx = new RegExp(`${'<tr><td  >'}(.*?)${'<table >'}`);
   str = msg.match(regEx);
   subStr = str[0].replaceAll("</td>", "");
   subStr = subStr.replaceAll("<td  >", "");
@@ -772,6 +864,7 @@ function reservoir (docBody) {
   // Total working hours
   regEx = new RegExp(`${'<tr>'}(.*?)${'</tr>'}`);
   str = msg.match(regEx);
+  let totality = tWO(str[0]);
   line = single(str[0]);
   style[DocumentApp.Attribute.FONT_SIZE] = 14;
   line = entities(line);
@@ -830,6 +923,7 @@ function reservoir (docBody) {
 
   docBody.appendHorizontalRule();
   docBody.appendParagraph("\r\r");
+  return [submit, totality];
 }
 
 function fountain (docBody) {}
